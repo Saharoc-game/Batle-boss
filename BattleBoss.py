@@ -4,7 +4,7 @@ import random
 from rich.panel import Panel
 from rich import print
 
-from core import boss 
+from core import boss
 from core import player
 
 from core.effect import PoisonEffect, BleedingEffect, FireEffect, StunEffect
@@ -17,15 +17,24 @@ print(Panel("Добро пожаловать в [bold]Battle Boss[/bold] — т�
 
 P1 = player.choose_playerclass() # Создание игрока
 
-B1 = boss.random_boss() # Создание Босса
+# B1 = boss.random_boss() # Создание Босса
+
+B1 = boss.BossArc()
 
 input("Нажмите чтобы начать... ")
 
 UI.update_stats(P1, B1)
 UI.show_control()
-P1.inventory.drop_item_ring()
+# P1.inventory.drop_item_ring()
+# P1.inventory.drop_item_armor()
+# P1.inventory.drop_item_sword(P1.bosses_killed)
 
 while P1.hp > 0:
+
+    #stun = StunEffect()
+    #P1.add_effect(stun)
+    B1.cast_spell_effect(P1)
+    UI.add_message_to_main(f"{P1.effects}")
 
     if P1.bosses_killed%10==0 and P1.bosses_killed!= 0:
         shop = ShopEvent()

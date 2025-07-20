@@ -11,6 +11,8 @@ from core.item.ring import Ring
 
 from utils.input_until import get_valid_int_input
 
+from utils.rich_UI import UI
+
 class ShopEvent:
     def __init__(self):
         self.inventory = []
@@ -28,8 +30,9 @@ class ShopEvent:
             self.inventory.append(ring.create())
 
     def trigger(self, player):
+        UI.add_message_to_main("[bold cyan]Вы попали в магазин![/bold cyan]")
         print("\n[bold cyan]Вы попали в магазин![/bold cyan]")
-
+    
         for i in range(5) :
             self.add_random_item()
 
@@ -87,6 +90,7 @@ class ShopEvent:
             ) - 1 # Игрок выбирает предмет
 
             if ans == -1 :
+                UI.add_message_to_main("Вы вышли из магазина")
                 print("Вы вышли из магазина")
                 return None
             
