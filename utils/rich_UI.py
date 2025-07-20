@@ -31,9 +31,9 @@ class UIClass ():
             Layout(name="control"),
             Layout(name="item")
         )
-        layout["stats"].size = 4
-        layout["control"].size = 6
-        layout["item"].size = 8
+        layout["stats"].size = 5
+        layout["control"].size = 7
+        layout["item"].size = 10
         return layout
 
     def add_message_to_main(self, new_msg: str):
@@ -85,7 +85,8 @@ class UIClass ():
     def update_stats(self, player, boss):
         self.layout["stats"].update(Panel(
             f"Ваше здоровье [blue]{player.hp}[/blue]. Ваша магия  [blue]{player.magic}[/blue]. Ваши деньги  [blue]{player.money}[/blue]\n"
-            f"Здоровье босса [red]{boss.hp}[/red]. Магия босса [red]{boss.magic}[/red].", title="Статистика"))
+            f"Здоровье босса [red]{boss.hp}[/red]. Магия босса [red]{boss.magic}[/red].\n" 
+            f"Сейчас {player.rounds} раунд", title="Статистика"))
         
         self.console.print(self.layout)
 

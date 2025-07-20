@@ -6,14 +6,14 @@ from utils.rich_UI import UI
 def get_valid_int_input(prompt, valid_options): # Функция для получения корректного ввода от пользователя
     while True:
         try:
-            UI.add_message_to_main(prompt, end='')
+            print(prompt)
             x = int(input())
             if x not in valid_options:
-                UI.add_message_to_main(f"Пожалуйста, введите {', '.join(str(opt) for opt in valid_options)}")
+                print(f"Пожалуйста, введите {', '.join(str(opt) for opt in valid_options)}")
                 continue
             return x # Возвращаем корректное значение
         except ValueError:
-            UI.add_message_to_main("Пожалуйста, введите число")
+            print("Пожалуйста, введите число")
 
 def check_dogde_and_parry(dodge, parry, damage): # Функция для проверки уклонения и парирования
     if random.randint(1, 100) <= dodge:  

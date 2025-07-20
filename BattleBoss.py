@@ -22,6 +22,8 @@ B1 = boss.random_boss() # Создание Босса
 input("Нажмите чтобы начать... ")
 
 UI.update_stats(P1, B1)
+UI.show_control()
+P1.inventory.drop_item_ring()
 
 while P1.hp > 0:
 
@@ -57,7 +59,6 @@ while P1.hp > 0:
         UI.add_message_to_main("Этот босс бьет сильнее предыдущего на 1 урон.")
 
     if not P1.has_effect(StunEffect) :
-        UI.add_message_to_main("Сейчас ", P1.rounds, "раунд")
 
     # Защита от дураков (цифры)
         hod_igroka = get_valid_int_input(
@@ -77,12 +78,11 @@ while P1.hp > 0:
             B1.hp -= P1.attack()
             
     # Инвентарь
-        if hod_igroka == 4:
+        if (hod_igroka == 4) and (len(P1.inventory.inventory)>0):
             P1.player_choose_item()
 
     # Продажа
-
-        if hod_igroka == 5:
+        if (hod_igroka == 5) and (len(P1.inventory.inventory)>0):
             P1.money += P1.inventory.sell_item()
       
     if B1.hp > 0:
@@ -104,8 +104,8 @@ while P1.hp > 0:
                 P1.hp -= B1.attack(P1.bosses_killed, P1.armor_defense, P1.dodge, P1.parry)
     
     P1.effect_update()
-    UI.update_stats(P1, B1)
     P1.rounds = P1.rounds + 1
+    UI.update_stats(P1, B1)
 
 # Проигрыш игрока, записываем рекорд
 

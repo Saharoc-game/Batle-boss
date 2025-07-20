@@ -4,11 +4,13 @@ from rich.console import Console
 from rich.panel import Panel
 from rich.table import Table
 
-
 from core.item.sword import Sword
 from core.item.armor import Armor
 from core.item.ring import Ring
+
 from utils.input_until import get_valid_int_input
+from utils.rich_UI import UI
+
 
 class Inventory:
     """
@@ -92,7 +94,7 @@ class Inventory:
                 ) # Добавляем строчку
                 valid_indexes.append(index)
 
-        console.print(table) # Выводим таблицу
+        UI.show_table_in_main(table) # Выводим таблицу
 
         ans = get_valid_int_input(
             "[bold green]Введите номер предмета:[/bold green] ",
@@ -108,6 +110,7 @@ class Inventory:
                         border_style="bright_blue"
                     )
                 )
+                UI.show_item_in_layoutitem(selected_item)
                 return {'sword_damage': selected_item['damage']}
             
             elif selected_item['type'] == 'armor':
@@ -117,6 +120,7 @@ class Inventory:
                         border_style="bright_blue"
                     )
                 )
+                UI.show_item_in_layoutitem(selected_item)
                 return {'armor_defence': selected_item['defence']}
             elif selected_item['type'] == 'ring' :
                 console.print(
@@ -126,6 +130,7 @@ class Inventory:
                     )
 
                 )
+                UI.show_item_in_layoutitem(selected_item)
                 return {'ring_regen': selected_item['heal']}
         else:
             console.print(Panel("[red]Некорректный выбор[/red]", border_style="red"))
@@ -179,12 +184,15 @@ class Inventory:
                     f"[bright_red]Регенерация {item['heal']}[/bright_red]",
                     f"[bold gold1]{item['cost']} монет[/bold gold1]"
                 ) # Добавляем строчку
-        console.print(table)
+        UI.show_table_in_main(table)
 
         ans = get_valid_int_input(
             "[bold green]Введите номер предмета:[/bold green] ",
             valid_indexes
         ) - 1 # Игрок выбирает предмет
+
+        if ans == -1 :
+            return 0
 
         if 0 <= ans < len(self.inventory):
             selected_item = self.inventory[ans]
