@@ -121,7 +121,20 @@ class Player(): # Класс игрок
 
         elif 'ring_regen' in choose: # Если кольцо
             self.rich_regen = choose['ring_regen']
-     
+
+    def player_sell_item(self) : # Продажа предмета
+        sell = self.inventory.sell_item()
+        self.money+=sell[0]
+        if self.inventory.current_item == sell[1] :
+            self.inventory.current_item = None
+            self.sword_damage = 0  
+            self.armor_defense = 0
+            self.rich_regen = 0
+            UI.clear_layoytitem()
+
+        elif self.inventory.current_item > sell[1] :
+            self.inventory.current_item-=1
+
     def player_abilites(self) : # Способность
         """Просто пустышка. Так как у всех подклассов игроков разные способности"""
         UI.add_message_to_main("У вас нет особых способностей.")

@@ -76,6 +76,11 @@ class UIClass ():
                                     f"Цена - {item["cost"]}", title="Текущий Предмет"))
             
         self.console.print(self.layout)
+
+    def clear_layoytitem(self) :
+        self.layout["item"].update(Panel(
+            "Сейчас вы не носите никакой предмет", title="Текущий Предмет")
+        )
     
     def show_control(self):
         self.layout["control"].update(Panel("[bright_blue]1[/bright_blue] чтобы атаковать.\n[bright_blue]2[/bright_blue] чтобы восполнить здоровье.\n[bright_blue]3[/bright_blue] чтобы восполнить магию.\n[bright_blue]4[/bright_blue] чтобы открыть инвентарь.\n[bright_blue]5[/bright_blue] чтобы продать предмет.\n[bright_blue]0[/bright_blue] чтобы пропустить ход.", title="Управление"))

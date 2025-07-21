@@ -1,5 +1,3 @@
-from rich import print
-
 from core.effect.poison import PoisonEffect
 
 from utils.rich_UI import UI

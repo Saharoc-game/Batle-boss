@@ -17,24 +17,17 @@ print(Panel("Добро пожаловать в [bold]Battle Boss[/bold] — т�
 
 P1 = player.choose_playerclass() # Создание игрока
 
-# B1 = boss.random_boss() # Создание Босса
-
-B1 = boss.BossArc()
+B1 = boss.random_boss() # Создание Босса
 
 input("Нажмите чтобы начать... ")
 
 UI.update_stats(P1, B1)
 UI.show_control()
-# P1.inventory.drop_item_ring()
-# P1.inventory.drop_item_armor()
-# P1.inventory.drop_item_sword(P1.bosses_killed)
+UI.clear_layoytitem()
 
 while P1.hp > 0:
 
-    #stun = StunEffect()
-    #P1.add_effect(stun)
-    B1.cast_spell_effect(P1)
-    UI.add_message_to_main(f"{P1.effects}")
+    UI.add_message_to_main(f"{P1.inventory.current_item}")
 
     if P1.bosses_killed%10==0 and P1.bosses_killed!= 0:
         shop = ShopEvent()
@@ -92,7 +85,7 @@ while P1.hp > 0:
 
     # Продажа
         if (hod_igroka == 5) and (len(P1.inventory.inventory)>0):
-            P1.money += P1.inventory.sell_item()
+            P1.player_sell_item()
       
     if B1.hp > 0:
         if B1.hp / B1.HP_MAX < 0.5:  # Проверяем, если HP < 50%

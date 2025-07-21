@@ -1,5 +1,3 @@
-from rich import print
-
 from core.effect.effectmain import Effect
 
 from utils.rich_UI import UI
