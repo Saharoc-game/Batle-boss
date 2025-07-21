@@ -46,7 +46,7 @@ class Boss:
             if "player_damage" in result:
                 damage = result["player_damage"]
             if "boss_damage" in result:
-                self.hp-result["boss_damage"]
+                self.hp -= result["boss_damage"]
             else :
                 damage = 0
             return damage
