@@ -6,6 +6,7 @@ from utils.input_until import get_valid_int_input
 
 from core.effect import AdvantageEffect, RegenerationEffect
 
+from utils.rich_UI import UI
 
 class Player(): # Класс игрок
     def __init__(self):
@@ -31,14 +32,14 @@ class Player(): # Класс игрок
         self.parry = 1 # Шанс парирования
 
     def healf(self) : # Лечение
-        print("Вы восполнили здоровье. Но потратили магию")
+        UI.add_message_to_main("Вы восполнили здоровье. Но потратили магию")
         self.hp += (10 + self.bosses_killed)
         if self.hp > self.max_hp:
             self.hp = self.max_hp
         self.magic -= 1
 
     def magic_add(self) : # Добавление магии
-        print("Вы восполнили магию. Но потратили деньги")
+        UI.add_message_to_main("Вы восполнили магию. Но потратили деньги")
         self.magic += 3
         self.money -= 1
         if self.magic > self.max_magic:
@@ -52,7 +53,7 @@ class Player(): # Класс игрок
 
         if x == 2:
             if self.magic < 2:
-                print("Недостаточно маны для супер удара!")
+                UI.add_message_to_main("Недостаточно маны для супер удара!")
                 return None
 
             if self.buff > 0:
@@ -66,12 +67,12 @@ class Player(): # Класс игрок
                 total_damage = int((igrok_uron + self.sword_damage) - (igrok_uron + self.sword_damage * 0.3))
             else:
                 total_damage = igrok_uron + self.sword_damage
-            print(f"Вы использовали [cyan]{self.super_punch}[/cyan] Нанесли боссу урона - [red]{total_damage}[/red]")
+            UI.add_message_to_main(f"Вы использовали [cyan]{self.super_punch}[/cyan] Нанесли боссу урона - [red]{total_damage}[/red]")
             return total_damage
     
         elif x == 1:  # Обычный удар
             if random.randint(0, 3) == 0 and self.buff == 0:
-                print("Босс поставил блок")
+                UI.add_message_to_main("Босс поставил блок")
                 return 0  
             elif self.buff > 0:
                 igrok_uron = random.randint(5, 15)
@@ -92,7 +93,7 @@ class Player(): # Класс игрок
                 total_damage = int((igrok_uron + self.sword_damage) - (igrok_uron + self.sword_damage*0.3))
             else :
                 total_damage = igrok_uron + self.sword_damage
-            print(f"Вы ударили обычным ударом. Нанесли боссу урона - [red]{total_damage}[/red]")
+            UI.add_message_to_main(f"Вы ударили обычным ударом. Нанесли боссу урона - [red]{total_damage}[/red]")
             return total_damage
         
         else: # Способности
@@ -106,7 +107,7 @@ class Player(): # Класс игрок
                 self.hp -= ability_result["self_damage"]  # Потеря HP
                 return 0 
             else : # Если не хватает магии
-                print(f"У вас недочтаточно магии для способности [yellow]{self.name_ability}[/yellow]!")
+                UI.add_message_to_main(f"У вас недочтаточно магии для способности [yellow]{self.name_ability}[/yellow]!")
                 return 0
             
     def player_choose_item(self) : # Экипируем предмет
@@ -120,10 +121,23 @@ class Player(): # Класс игрок
 
         elif 'ring_regen' in choose: # Если кольцо
             self.rich_regen = choose['ring_regen']
-     
+
+    def player_sell_item(self) : # Продажа предмета
+        sell = self.inventory.sell_item()
+        self.money+=sell[0]
+        if self.inventory.current_item == sell[1] :
+            self.inventory.current_item = None
+            self.sword_damage = 0  
+            self.armor_defense = 0
+            self.rich_regen = 0
+            UI.clear_layoytitem()
+
+        elif self.inventory.current_item > sell[1] :
+            self.inventory.current_item-=1
+
     def player_abilites(self) : # Способность
         """Просто пустышка. Так как у всех подклассов игроков разные способности"""
-        print("У вас нет особых способностей.")
+        UI.add_message_to_main("У вас нет особых способностей.")
         pass
 
     def effect_update(self) : # Обновляем все эффекты
@@ -162,7 +176,7 @@ class PlayerWar (Player): #Воин
         if self.magic >= 2 :
             self.magic -= 2
             self.buff = 2
-            print(f"Вы использовали способность [yellow]{self.name_ability}[/yellow]. Ваш урон увеличен на [blue]2[/blue] удара.")
+            UI.add_message_to_main(f"Вы использовали способность [yellow]{self.name_ability}[/yellow]. Ваш урон увеличен на [blue]2[/blue] удара.")
             return {"buff": 2}  # Возвращаем данные об усилении
         else :
             return None
@@ -181,7 +195,7 @@ class PlayerWiz (Player): #Маг
         if self.magic >= 2 :
             self.magic -= 2
             total_damage = 20
-            print(f"Вы использовали заклинание [yellow]{self.name_ability}[/yellow]. Нанесли боссу урона - [red]{total_damage}[/red]")
+            UI.add_message_to_main(f"Вы использовали заклинание [yellow]{self.name_ability}[/yellow]. Нанесли боссу урона - [red]{total_damage}[/red]")
             return {"damage": total_damage}  # Возвращаем урон
         else :
             return None            
@@ -201,11 +215,11 @@ class PlayerFort (Player): #Везунчик
             chance = random.randint(1, 2)
             if chance == 1:
                 total_damage = 20
-                print(f"Вы использовали способность [yellow]{self.name_ability}[yellow]. Нанесли урона - [red]{total_damage}[/red]")
+                UI.add_message_to_main(f"Вы использовали способность [yellow]{self.name_ability}[yellow]. Нанесли урона - [red]{total_damage}[/red]")
                 return {"damage": total_damage} # Возвращаем данные об уроне по боссу
             else:
                 self.hp -= 10
-                print(f"Вы неудачно использовали способность [yellow]{self.name_ability}[yellow]. Нанесли себе урона - [red]10[/red]")
+                UI.add_message_to_main(f"Вы неудачно использовали способность [yellow]{self.name_ability}[yellow]. Нанесли себе урона - [red]10[/red]")
                 return {"self_damage": 10} # Возвращаем данные об урону по себе
         else :
             return None
@@ -226,7 +240,7 @@ class PlayerBand(Player): #Разбойник
             total_damage = 10
             self.money += 2
             self.magic -= 2
-            print(f"Вы использовали способность 'Джинада' и украли 2 монеты у босса. Нанесли урона - {total_damage}")
+            UI.add_message_to_main(f"Вы использовали способность 'Джинада' и украли 2 монеты у босса. Нанесли урона - {total_damage}")
             return {"damage": total_damage}
         else:
             return None

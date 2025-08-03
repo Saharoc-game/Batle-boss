@@ -4,14 +4,14 @@ import random
 from rich.panel import Panel
 from rich import print
 
-from core import boss 
+from core import boss
 from core import player
 
 from core.effect import PoisonEffect, BleedingEffect, FireEffect, StunEffect
 from core.event.shop import ShopEvent
 from utils.input_until import get_valid_int_input
-from utils.output_until import get_stats_player_and_boss
 
+from utils.rich_UI import UI
 
 print(Panel("Добро пожаловать в [bold]Battle Boss[/bold] — текстовую RPG-игру.\nВ которой вам предстоит сражаться с боссами, улучшать своё снаряжение и выживать как можно дольше!", title="BattleBoss"))
 
@@ -19,10 +19,15 @@ P1 = player.choose_playerclass() # Создание игрока
 
 B1 = boss.random_boss() # Создание Босса
 
-get_stats_player_and_boss(P1, B1)
-print(Panel.fit("[bright_blue]1[/bright_blue] чтобы атаковать.\n[bright_blue]2[/bright_blue] чтобы восполнить здоровье.\n[bright_blue]3[/bright_blue] чтобы восполнить магию.\n[bright_blue]4[/bright_blue] чтобы открыть инвентарь.\n[bright_blue]5[/bright_blue] чтобы продать предмет.\n[bright_blue]0[/bright_blue] чтобы пропустить ход.", title="Управление"))
+input("Нажмите чтобы начать... ")
+
+UI.update_stats(P1, B1)
+UI.show_control()
+UI.clear_layoytitem()
 
 while P1.hp > 0:
+
+    UI.add_message_to_main(f"{P1.inventory.current_item}")
 
     if P1.bosses_killed%10==0 and P1.bosses_killed!= 0:
         shop = ShopEvent()
@@ -48,15 +53,14 @@ while P1.hp > 0:
         if x == 1 : # Выдача меча
             P1.inventory.drop_item_sword(P1.bosses_killed)
 
-        print(f"Поздравлю, игрок! Вы смогли победить босса под номером {P1.bosses_killed}")
-        print(f"Ваша максимальное здоровье теперь {P1.max_hp} Максимальное количество магии {P1.max_magic}")
-        print("Магия увеличена на 1, здоровье на 5. Также вы нашли 3 монеты!")
+        UI.add_message_to_main(f"Поздравлю, игрок! Вы смогли победить босса под номером {P1.bosses_killed}")
+        UI.add_message_to_main(f"Ваша максимальное здоровье теперь {P1.max_hp} Максимальное количество магии {P1.max_magic}")
+        UI.add_message_to_main("Магия увеличена на 1, здоровье на 5. Также вы нашли 3 монеты!")
         B1 = boss.random_boss() # Создание Босса
-        get_stats_player_and_boss(P1, B1)
-        print("Этот босс бьет сильнее предыдущего на 1 урон.")
+        UI.update_stats(P1, B1)
+        UI.add_message_to_main("Этот босс бьет сильнее предыдущего на 1 урон.")
 
     if not P1.has_effect(StunEffect) :
-        print("Сейчас ", P1.rounds, "раунд")
 
     # Защита от дураков (цифры)
         hod_igroka = get_valid_int_input(
@@ -76,13 +80,12 @@ while P1.hp > 0:
             B1.hp -= P1.attack()
             
     # Инвентарь
-        if hod_igroka == 4:
+        if (hod_igroka == 4) and (len(P1.inventory.inventory)>0):
             P1.player_choose_item()
 
     # Продажа
-
-        if hod_igroka == 5:
-            P1.money += P1.inventory.sell_item()
+        if (hod_igroka == 5) and (len(P1.inventory.inventory)>0):
+            P1.player_sell_item()
       
     if B1.hp > 0:
         if B1.hp / B1.HP_MAX < 0.5:  # Проверяем, если HP < 50%
@@ -103,8 +106,8 @@ while P1.hp > 0:
                 P1.hp -= B1.attack(P1.bosses_killed, P1.armor_defense, P1.dodge, P1.parry)
     
     P1.effect_update()
-    get_stats_player_and_boss(P1, B1)
     P1.rounds = P1.rounds + 1
+    UI.update_stats(P1, B1)
 
 # Проигрыш игрока, записываем рекорд
 

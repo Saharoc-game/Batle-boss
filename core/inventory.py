@@ -4,11 +4,13 @@ from rich.console import Console
 from rich.panel import Panel
 from rich.table import Table
 
-
 from core.item.sword import Sword
 from core.item.armor import Armor
 from core.item.ring import Ring
+
 from utils.input_until import get_valid_int_input
+from utils.rich_UI import UI
+
 
 class Inventory:
     """
@@ -20,6 +22,7 @@ class Inventory:
     def __init__(self):
 
         self.mass = 0
+        self.current_item = None
 
         # Пример предметов по умолчанию
         self.INVENTORY_STATS = [
@@ -51,10 +54,13 @@ class Inventory:
         Возвращает словарь с параметрами выбранного предмета.
         """
 
+        if len(self.inventory)<=0:
+            UI.add_message_to_main("У вас нету предметов!")
+            return None
         console = Console()
         console.print(Panel("[bold green]Выберите предмет, который вы экипируете[/bold green]"))
 
-        valid_indexes = []
+        valid_indexes = [0]
 
 
         # Создаём таблицу
@@ -92,43 +98,43 @@ class Inventory:
                 ) # Добавляем строчку
                 valid_indexes.append(index)
 
-        console.print(table) # Выводим таблицу
+        UI.show_table_in_main(table) # Выводим таблицу
 
         ans = get_valid_int_input(
             "[bold green]Введите номер предмета:[/bold green] ",
             valid_indexes
         ) - 1 # Игрок выбирает предмет
 
+        if ans == -1 :
+            return None
+        
         if 0 <= ans < len(self.inventory):
             selected_item = self.inventory[ans]
             if selected_item['type'] == 'sword':
-                console.print(
-                    Panel(
-                        f"[bold green]Вы экипировали меч[/bold green] [yellow]{selected_item['name']}[/yellow] [bold green]с уроном[/bold green] [red]{selected_item['damage']}[/red]",
-                        border_style="bright_blue"
-                    )
+                UI.add_message_to_main(
+                        f"[bold green]Вы экипировали меч[/bold green] [yellow]{selected_item['name']}[/yellow] [bold green]с уроном[/bold green] [red]{selected_item['damage']}[/red]"
                 )
+                self.current_item = ans
+                UI.show_item_in_layoutitem(selected_item)
                 return {'sword_damage': selected_item['damage']}
             
             elif selected_item['type'] == 'armor':
-                console.print(
-                    Panel(
-                        f"[bold green]Вы экипировали броню[/bold green] [yellow]{selected_item['name']}[/yellow] [bold green]с защитой[/bold green] [green]{selected_item['defence']}[/green]",
-                        border_style="bright_blue"
-                    )
+                UI.add_message_to_main(
+                        f"[bold green]Вы экипировали броню[/bold green] [yellow]{selected_item['name']}[/yellow] [bold green]с защитой[/bold green] [green]{selected_item['defence']}[/green]"
                 )
+                self.current_item = ans
+                UI.show_item_in_layoutitem(selected_item)
                 return {'armor_defence': selected_item['defence']}
             elif selected_item['type'] == 'ring' :
-                console.print(
-                    Panel(
-                        f"[bold green]Вы экипировали кольцо[/bold green] [yellow]{selected_item['name']}[/yellow] [bold green]с регенерацией[/bold green] [green]{selected_item['heal']}[/green]",
-                        border_style="bright_blue"
+                UI.add_message_to_main(
+                        f"[bold green]Вы экипировали кольцо[/bold green] [yellow]{selected_item['name']}[/yellow] [bold green]с регенерацией[/bold green] [green]{selected_item['heal']}[/green]"
                     )
-
-                )
+                self.current_item = ans
+                UI.show_item_in_layoutitem(selected_item)
                 return {'ring_regen': selected_item['heal']}
         else:
-            console.print(Panel("[red]Некорректный выбор[/red]", border_style="red"))
+            print("Ошибка")
+            return None
 
     def sell_item(self): 
         """
@@ -136,11 +142,15 @@ class Inventory:
         Создаёт таблицу со всеми предметами и позволяет игроку выбрать предмет для продажи.
         Возвращает количество монет за проданный предмет.
         """
-         
+
+        if len(self.inventory)<=0:
+            UI.add_message_to_main("У вас нету предметов!")
+            return None
+        
         console = Console()
         console.print(Panel("[bold cyan]Выберите предмет, который вы продадите[/bold cyan]", border_style="bright_blue"))
 
-        valid_indexes = []
+        valid_indexes = [0]
 
         # Создаём таблицу
         table = Table(show_header=True, header_style="bold magenta") 
@@ -179,12 +189,16 @@ class Inventory:
                     f"[bright_red]Регенерация {item['heal']}[/bright_red]",
                     f"[bold gold1]{item['cost']} монет[/bold gold1]"
                 ) # Добавляем строчку
-        console.print(table)
+                valid_indexes.append(index)
+        UI.show_table_in_main(table)
 
         ans = get_valid_int_input(
             "[bold green]Введите номер предмета:[/bold green] ",
             valid_indexes
         ) - 1 # Игрок выбирает предмет
+        
+        if ans == -1 :
+            return 0
 
         if 0 <= ans < len(self.inventory):
             selected_item = self.inventory[ans]
@@ -192,30 +206,18 @@ class Inventory:
             self.mass -= selected_item['weight']
             self.inventory.pop(ans)
             if selected_item['type'] == 'sword':
-                console.print(
-                    Panel(
-                        f"[bold green]Вы продали меч[/bold green] [yellow]{selected_item['name']}[/yellow] "
-                        f"[bold green]за[/bold green] [bold gold1]{coins} монет[/bold gold1]",
-                        border_style="bright_blue"
+                UI.add_message_to_main(
+                        f"[bold green]Вы продали меч[/bold green] [yellow]{selected_item['name']}[/yellow] [bold green]за[/bold green] [bold gold1]{coins} монет[/bold gold1]"
                     )
-                )
             elif selected_item['type'] == 'armor':
-                console.print(
-                    Panel(
-                        f"[bold green]Вы продали броню[/bold green] [yellow]{selected_item['name']}[/yellow] "
-                        f"[bold green]за[/bold green] [bold gold1]{coins} монет[/bold gold1]",
-                        border_style="bright_blue"
+                UI.add_message_to_main(
+                        f"[bold green]Вы продали броню[/bold green] [yellow]{selected_item['name']}[/yellow] [bold green]за[/bold green] [bold gold1]{coins} монет[/bold gold1]"
                     )
-                )
             elif selected_item['type'] == 'ring':
-                console.print(
-                    Panel(
-                        f"[bold green]Вы продали кольцо[/bold green] [yellow]{selected_item['name']}[/yellow] "
-                        f"[bold green]за[/bold green] [bold gold1]{coins} монет[/bold gold1]",
-                        border_style="bright_blue"
+                UI.add_message_to_main(
+                        f"[bold green]Вы продали кольцо[/bold green] [yellow]{selected_item['name']}[/yellow] [bold green]за[/bold green] [bold gold1]{coins} монет[/bold gold1]"
                     )
-                )
-            return coins # Возвращаем количество денег, которых надо прибавить
+            return coins, ans # Возвращаем количество денег, которых надо прибавить. И номер предмета, который мы удалили
         else:
             console.print(Panel("[red]Некорректный выбор[/red]", border_style="red"))
 
@@ -229,7 +231,7 @@ class Inventory:
 
         sword = Sword(bosses_killed) # Создаём предмет
         self.mass += sword.weight
-        print(Panel(f"Вы получили предмет - {sword.name}\n{sword.description}\nВес - {sword.weight}\nУрон - {sword.damage}\nЦена - {sword.cost}", title="Вы получили предмет!"))
+        UI.add_message_to_main("У добавился предмет! Посмотрите его в инвентаре")
         # Создаём панель с параметрами предмета
         self.inventory.append(sword.create())
  
@@ -243,7 +245,7 @@ class Inventory:
 
         armor = Armor() # Создаём предмет
         self.mass += armor.weight
-        print(Panel(f"Вы получили предмет - {armor.name}\n{armor.description}\nВес - {armor.weight}\nБроня - {armor.defence}%\nЦена - {armor.cost}", title="Вы получили предмет!"))
+        UI.add_message_to_main("У добавился предмет! Посмотрите его в инвентаре")
         # Создаём панель с параметрами предмета
         self.inventory.append(armor.create())
 
@@ -255,7 +257,7 @@ class Inventory:
         """
 
         ring = Ring() # Создаём предмет
-        self.mass = ring.weight
-        print(Panel(f"Вы получили предмет - {ring.name}\n{ring.description}\nВес - {ring.weight}\nРегенерация - {ring.heal}%\nЦена - {ring.cost}", title="Вы получили предмет!"))
+        self.mass += ring.weight
+        UI.add_message_to_main("У добавился предмет! Посмотрите его в инвентаре")
         # Создаём панель с параметрами предмета
         self.inventory.append(ring.create())

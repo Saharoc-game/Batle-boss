@@ -5,6 +5,8 @@ from core.effect import PoisonEffect, BleedingEffect, FireEffect, StunEffect, Re
 
 from utils.input_until import check_dogde_and_parry
 
+from utils.rich_UI import UI
+
 
 class Boss: 
 
@@ -32,19 +34,19 @@ class Boss:
 
         if self.recharge >= self.RECHARGE_MAX : # Супер удар
             self.damage = random.randint(10, 15)
-            print(f"Босс использует [cyan]{self.super_punch}[/cyan] и наносит - [red]{self.damage}[/red] урона")
+            UI.add_message_to_main(f"Босс использует [cyan]{self.super_punch}[/cyan] и наносит - [red]{self.damage}[/red] урона")
             self.recharge = 0
             return self.damage
         
         else : # Обычная Атака
             x = random.randint(0, 5)
             self.damage = int(x - x * (armor_defense / 100) + bosses_killed)
-            print(f"Босс нанёс вам урон -  [red]{self.damage}[/red]")
+            UI.add_message_to_main(f"Босс нанёс вам урон -  [red]{self.damage}[/red]")
             result = check_dogde_and_parry(dodge, parry, self.damage)
             if "player_damage" in result:
                 damage = result["player_damage"]
             if "boss_damage" in result:
-                self.hp-result["boss_damage"]
+                self.hp -= result["boss_damage"]
             else :
                 damage = 0
             return damage
@@ -59,7 +61,7 @@ class Boss:
 
         self.magic -= 1
         self.hp += 10
-        print("Босс использовал заклинание [green]<Исцеление>[/green]")
+        UI.add_message_to_main("Босс использовал заклинание [green]<Исцеление>[/green]")
     
     def add_recharge(self) : # Накопление супер удара
         """
@@ -69,7 +71,7 @@ class Boss:
         """
 
         self.recharge += 2.5
-        print("Босс копит супер удар")
+        UI.add_message_to_main("Босс копит супер удар")
 
     def cast_spell_effect(self, target) : 
         """Базовый метод — эффект заклинания. Переопределяется в подклассах."""
@@ -95,7 +97,7 @@ class BossWar (Boss) :
 
         self.magic -= 1
         duration = 1
-        print(f"[red]Босс вас оглушил на [/red][blue]{duration}[/blue][red] ходов![/red]")
+        UI.add_message_to_main(f"[red]Босс вас оглушил на [/red][blue]{duration}[/blue][red] ходов![/red]")
         stun = StunEffect() # Создаём эффект оглушения
         target.add_effect(stun) # Добавляем эффект оглушения
 
@@ -116,7 +118,7 @@ class BossWiz (Boss) :
         target: игрок
         """
 
-        print("[red]Босс колдует на вас огонь![/red]")
+        UI.add_message_to_main("[red]Босс колдует на вас огонь![/red]")
         self.magic -= 2
         duration = random.randint(1,3)
         damage = random.randint(2,4)
@@ -142,7 +144,7 @@ class BossArc (Boss):
         target: игрок
         """
 
-        print("[red]В вас попала стрела! И у вас пошло кровотечение![/red]")
+        UI.add_message_to_main("[red]В вас попала стрела! И у вас пошло кровотечение![/red]")
         self.hp -= 5
         duration = random.randint(1,2)
         damage = random.randint(1,3)
